@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000;
+        }
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        canvas {
+            border: 1px solid #fff;
+            background-color: #000;
+        }
+        #score {
+            color: #fff;
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        .controls {
+            display: flex;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .controls button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 18px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            color: #fff;
+        }
+        .controls button i {
+            font-size: 30px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="score">Score: 0</div>
+        <div class="controls">
+            <button id="pause"><i class="fas fa-pause"></i></button>
+            <button id="play"><i class="fas fa-play"></i></button>
+        </div>
+        <div class="controls">
+            <button id="up"><i class="fas fa-arrow-up"></i></button>
+        </div>
+        <div class="controls">
+            <button id="left"><i class="fas fa-arrow-left"></i></button>
+            <button id="down"><i class="fas fa-arrow-down"></i></button>
+            <button id="right"><i class="fas fa-arrow-right"></i></button>
+        </div>
+    </div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const scale = 20;
+        const rows = canvas.height / scale;
+        const columns = canvas.width / scale;
+
+        let snake;
+        let fruit;
+        let playing = true;
+        let gameLoop;
+
+        function setup() {
+            snake = new Snake();
+            fruit = new Fruit();
+            fruit.pickLocation();
+            gameLoop = window.setInterval(() => {
+                if (playing) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    fruit.draw();
+                    snake.update();
+                    snake.draw();
+
+                    if (snake.eat(fruit)) {
+                        fruit.pickLocation();
+                    }
+
+                    snake.checkCollision();
+                    document.querySelector("#score").innerText = "Score: " + snake.total;
+                }
+            }, 250);
+        }
+
+        window.addEventListener('keydown', (evt) => {
+            const direction = evt.key.replace('Arrow', '');
+            snake.changeDirection(direction);
+        });
+
+        document.getElementById('pause').addEventListener('click', () => {
+            playing = false;
+        });
+
+        document.getElementById('play').addEventListener('click', () => {
+            playing = true;
+        });
+
+        document.getElementById('up').addEventListener('click', () => {
+            snake.changeDirection('Up');
+        });
+
+        document.getElementById('left').addEventListener('click', () => {
+            snake.changeDirection('Left');
+        });
+
+        document.getElementById('down').addEventListener('click', () => {
+            snake.changeDirection('Down');
+        });
+
+        document.getElementById('right').addEventListener('click', () => {
+            snake.changeDirection('Right');
+        });
+
+        function Snake() {
+            this.x = 0;
+            this.y = 0;
+            this.xSpeed = scale * 1;
+            this.ySpeed = 0;
+            this.total = 0;
+            this.tail = [];
+
+            this.draw = function() {
+                ctx.fillStyle = "#FFFFFF";
+                for (let i = 0; i < this.tail.length; i++) {
+                    ctx.fillRect(this.tail[i].x, this.tail[i].y, scale, scale);
+                }
+                ctx.fillRect(this.x, this.y, scale, scale);
+            };
+
+            this.update = function() {
+                for (let i = 0; i < this.tail.length - 1; i++) {
+                    this.tail[i] = this.tail[i + 1];
+                }
+                this.tail[this.total - 1] = { x: this.x, y: this.y };
+
+                this.x += this.xSpeed;
+                this.y += this.ySpeed;
+
+                if (this.x >= canvas.width) {
+                    this.x = 0;
+                }
+                if (this.y >= canvas.height) {
+                    this.y = 0;
+                }
+                if (this.x < 0) {
+                    this.x = canvas.width - scale;
+                }
+                if (this.y < 0) {
+                    this.y = canvas.height - scale;
+                }
+            };
+
+            this.changeDirection = function(direction) {
+                switch (direction) {
+                    case 'Up':
+                        if (this.ySpeed === 0) {
+                            this.xSpeed = 0;
+                            this.ySpeed = -scale * 1;
+                        }
+                        break;
+                    case 'Down':
+                        if (this.ySpeed === 0) {
+                            this.xSpeed = 0;
+                            this.ySpeed = scale * 1;
+                        }
+                        break;
+                    case 'Left':
+                        if (this.xSpeed === 0) {
+                            this.xSpeed = -scale * 1;
+                            this.ySpeed = 0;
+                        }
+                        break;
+                    case 'Right':
+                        if (this.xSpeed === 0) {
+                            this.xSpeed = scale * 1;
+                            this.ySpeed = 0;
+                        }
+                        break;
+                }
+            };
+
+            this.eat = function(fruit) {
+                if (this.x === fruit.x && this.y === fruit.y) {
+                    this.total++;
+                    return true;
+                }
+                return false;
+            };
+
+            this.checkCollision = function() {
+                for (let i = 0; i < this.tail.length; i++) {
+                    if (this.x === this.tail[i].x && this.y === this.tail[i].y) {
+                        this.total = 0;
+                        this.tail = [];
+                    }
+                }
+            };
+        }
+
+        function Fruit() {
+            this.x;
+            this.y;
+
+            this.pickLocation = function() {
+                this.x = Math.floor(Math.random() * rows) * scale;
+                this.y = Math.floor(Math.random() * columns) * scale;
+            };
+
+            this.draw = function() {
+                ctx.fillStyle = "#4cafab";
+                ctx.fillRect(this.x, this.y, scale, scale);
+            };
+        }
+
+        setup();
+    </script>
+</body>
+</html>
