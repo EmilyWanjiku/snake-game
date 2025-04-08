@@ -2,10 +2,13 @@
 
 import { motion } from "framer-motion"
 import { useGameContext } from "@/context/game-context"
+
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Slider } from "@/components/ui/slider"
 import { Volume2, VolumeX } from "lucide-react"
+
+
 
 interface SettingsScreenProps {
   onBackClick: () => void
@@ -21,7 +24,11 @@ export default function SettingsScreen({ onBackClick }: SettingsScreenProps) {
       exit={{ opacity: 0, y: -20 }}
       className="flex w-full max-w-md flex-col items-center rounded-lg bg-gray-800 p-8 shadow-xl"
     >
+
       <h2 className="mb-8 text-3xl font-bold text-emerald-400">Game Settings</h2>
+
+      <h2 className="mb-8 text-3xl font-bold text-emerald-400">Settings</h2>
+
 
       <div className="mb-8 w-full space-y-6">
         <div className="flex items-center justify-between">
@@ -34,10 +41,16 @@ export default function SettingsScreen({ onBackClick }: SettingsScreenProps) {
             onChange={(e) => updateSettings({ difficulty: e.target.value })}
             className="rounded-md bg-gray-700 px-3 py-2 text-white"
           >
+
             <option value="easy">Easy (Slower)</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
             <option value="extreme">Extreme (Fastest)</option>
+
+            <option value="easy">Easy</option>
+            <option value="medium">Medium</option>
+            <option value="hard">Hard</option>
+
           </select>
         </div>
 
@@ -55,6 +68,7 @@ export default function SettingsScreen({ onBackClick }: SettingsScreenProps) {
             <option value="desert">Desert</option>
             <option value="snow">Snow</option>
             <option value="neon">Neon</option>
+
             <option value="cyberpunk">Cyberpunk</option>
             <option value="underwater">Underwater</option>
             <option value="lava">Lava</option>
@@ -109,6 +123,10 @@ export default function SettingsScreen({ onBackClick }: SettingsScreenProps) {
             <span>Larger</span>
           </div>
         </div>
+
+          </select>
+        </div>
+
       </div>
 
       <motion.button
@@ -117,7 +135,11 @@ export default function SettingsScreen({ onBackClick }: SettingsScreenProps) {
         onClick={onBackClick}
         className="rounded-md bg-emerald-500 px-6 py-3 text-lg font-semibold text-gray-900 transition-colors hover:bg-emerald-400"
       >
+
         Save & Return
+
+        Back to Menu
+
       </motion.button>
     </motion.div>
   )

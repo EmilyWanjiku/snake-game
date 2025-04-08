@@ -4,7 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useGameContext } from "@/context/game-context"
 import GameControls from "./game-controls"
+
 import { Maximize2, Minimize2, Volume2, VolumeX } from "lucide-react"
+
+
 
 interface GameScreenProps {
   onMenuClick: () => void
@@ -14,6 +17,7 @@ interface GameScreenProps {
 // Game constants
 const CELL_SIZE = 20
 const INITIAL_SPEED = 150
+
 const SPEED_INCREASE = 5
 const LEVEL_THRESHOLD = 5
 const MAX_LEVEL = 15 // Increased to 15 levels
@@ -25,14 +29,26 @@ type Particle = { x: number; y: number; size: number; color: string; vx: number;
 type Prop = { x: number; y: number; type: string; theme: string }
 type Villager = Position & { scared: boolean; runDirection?: Direction }
 
+const SPEED_INCREASE = 10
+const LEVEL_THRESHOLD = 5
+const MAX_LEVEL = 5
+
+type Direction = "up" | "down" | "left" | "right"
+type Position = { x: number; y: number }
+
+
 export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps) {
   const { settings } = useGameContext()
   const canvasRef = useRef<HTMLCanvasElement>(null)
+
   const containerRef = useRef<HTMLDivElement>(null)
+
+
   const [score, setScore] = useState(0)
   const [level, setLevel] = useState(1)
   const [isPaused, setIsPaused] = useState(false)
   const [showLevelUp, setShowLevelUp] = useState(false)
+
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [inDanger, setInDanger] = useState(false)
   const [particles, setParticles] = useState<Particle[]>([])
@@ -40,6 +56,8 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
   const [isEating, setIsEating] = useState(false)
   const [props, setProps] = useState<Prop[]>([])
   const [soundMuted, setSoundMuted] = useState(!settings.soundEnabled)
+
+
   const [snake, setSnake] = useState<Position[]>([
     { x: 3 * CELL_SIZE, y: 10 * CELL_SIZE },
     { x: 2 * CELL_SIZE, y: 10 * CELL_SIZE },
@@ -47,11 +65,16 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
   ])
   const [food, setFood] = useState<Position>({ x: 0, y: 0 })
   const [obstacles, setObstacles] = useState<Position[]>([])
+
   const [villagers, setVillagers] = useState<Villager[]>([])
+
+  const [villagers, setVillagers] = useState<Position[]>([])
+
   const [direction, setDirection] = useState<Direction>("right")
   const [nextDirection, setNextDirection] = useState<Direction>("right")
   const [foodEatenInLevel, setFoodEatenInLevel] = useState(0)
   const [gameSpeed, setGameSpeed] = useState(
+
     INITIAL_SPEED -
       (settings.difficulty === "easy"
         ? 50
@@ -71,6 +94,12 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
   const ambientSoundRef = useRef<HTMLAudioElement | null>(null)
 
   // Theme colors and properties
+
+    INITIAL_SPEED - (settings.difficulty === "easy" ? 50 : settings.difficulty === "hard" ? -50 : 0),
+  )
+
+  // Theme colors
+
   const themes = {
     forest: {
       background: "#232931",
@@ -80,9 +109,12 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
       obstacle: "#a0522d",
       villager: "#ffd700",
       border: "#4ecca3",
+
       particle: "#4ecca3",
       props: ["tree", "bush", "rock", "flower"],
       villageProps: ["house", "well", "fence"],
+
+
     },
     desert: {
       background: "#e6ccb2",
@@ -92,9 +124,12 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
       obstacle: "#7f5539",
       villager: "#f4d03f",
       border: "#d35400",
+
       particle: "#e67e22",
       props: ["cactus", "bone", "dune", "skull"],
       villageProps: ["tent", "oasis", "camel"],
+
+
     },
     snow: {
       background: "#ecf0f1",
@@ -104,9 +139,12 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
       obstacle: "#7f8c8d",
       villager: "#bdc3c7",
       border: "#3498db",
+
       particle: "#3498db",
       props: ["pine", "snowman", "ice", "crystal"],
       villageProps: ["cabin", "igloo", "sled"],
+
+
     },
     neon: {
       background: "#000000",
@@ -116,6 +154,7 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
       obstacle: "#4b0082",
       villager: "#00ffff",
       border: "#ff00ff",
+
       particle: "#39ff14",
       props: ["neonSign", "arcade", "lightPost", "hologram"],
       villageProps: ["nightclub", "casino", "hotel"],
@@ -167,11 +206,14 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
       particle: "#80ffdb",
       props: ["asteroid", "satellite", "comet", "planet"],
       villageProps: ["spaceStation", "observatory", "rocket"],
+
+
     },
   }
 
   // Initialize game
   useEffect(() => {
+
     // Initialize audio elements
     eatSoundRef.current = new Audio("/sounds/eat.mp3")
     dangerSoundRef.current = new Audio("/sounds/danger.mp3")
@@ -204,6 +246,10 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
         e.preventDefault()
       }
 
+
+    placeFood()
+    const handleKeyDown = (e: KeyboardEvent) => {
+
       switch (e.key) {
         case "ArrowUp":
           changeDirection("up")
@@ -225,6 +271,7 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
         case "M":
           onMenuClick()
           break
+
         case "f":
         case "F":
           toggleFullscreen()
@@ -283,17 +330,33 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     }
   }
 
+
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [])
+
+
   // Game loop
   useEffect(() => {
     if (!isPaused) {
       const interval = setInterval(updateGame, gameSpeed)
       return () => clearInterval(interval)
     }
+
   }, [snake, food, obstacles, villagers, direction, nextDirection, isPaused, gameSpeed, canvasSize])
+
+  }, [snake, food, obstacles, villagers, direction, nextDirection, isPaused, gameSpeed])
+
 
   // Draw game
   useEffect(() => {
     drawGame()
+
   }, [snake, food, obstacles, villagers, settings.theme, inDanger, particles, canvasSize, isEating, props])
 
   // Check for danger
@@ -321,6 +384,9 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     }
   }, [isEating])
 
+  }, [snake, food, obstacles, villagers, settings.theme])
+
+
   function updateGame() {
     // Update direction
     setDirection(nextDirection)
@@ -329,15 +395,22 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     moveSnake()
 
     // Move villagers in higher levels
+
     if (level >= 2) {
+
+    if (level >= 3) {
+
       moveVillagers()
     }
 
     // Check for collisions
     if (checkCollision()) {
+
       if (!soundMuted && gameOverSoundRef.current) {
         gameOverSoundRef.current.play().catch((e) => console.error("Error playing sound:", e))
       }
+
+
       onGameOver(score, level)
       return
     }
@@ -366,10 +439,20 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     }
 
     // Handle wrapping around edges
+
     if (head.x < 0) head.x = canvasSize.width - CELL_SIZE
     if (head.x >= canvasSize.width) head.x = 0
     if (head.y < 0) head.y = canvasSize.height - CELL_SIZE
     if (head.y >= canvasSize.height) head.y = 0
+
+    const canvas = canvasRef.current
+    if (canvas) {
+      if (head.x < 0) head.x = canvas.width - CELL_SIZE
+      if (head.x >= canvas.width) head.x = 0
+      if (head.y < 0) head.y = canvas.height - CELL_SIZE
+      if (head.y >= canvas.height) head.y = 0
+    }
+
 
     // Create new snake with new head
     const newSnake = [head, ...snake]
@@ -389,14 +472,18 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
         const head = snake[0]
         const distX = head.x - villager.x
         const distY = head.y - villager.y
+
         const distance = Math.sqrt(distX * distX + distY * distY)
 
         // Set scared state based on distance to snake
         const scared = distance < CELL_SIZE * 5
 
+
+
         // Determine direction to move (away from snake)
         let moveX = 0
         let moveY = 0
+
         let runDirection: Direction | undefined = villager.runDirection
 
         if (scared) {
@@ -429,11 +516,21 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
               moveX = CELL_SIZE
               break
           }
+
+
+        if (Math.abs(distX) > Math.abs(distY)) {
+          // Move horizontally
+          moveX = distX > 0 ? -CELL_SIZE : CELL_SIZE
+        } else {
+          // Move vertically
+          moveY = distY > 0 ? -CELL_SIZE : CELL_SIZE
+
         }
 
         // Only move if new position is valid
         const newX = villager.x + moveX
         const newY = villager.y + moveY
+
 
         if (
           newX >= 0 &&
@@ -446,6 +543,22 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
         }
 
         return { ...villager, scared }
+
+        const canvas = canvasRef.current
+
+        if (
+          canvas &&
+          newX >= 0 &&
+          newX < canvas.width &&
+          newY >= 0 &&
+          newY < canvas.height &&
+          isValidPosition(newX, newY)
+        ) {
+          return { x: newX, y: newY }
+        }
+
+        return villager
+
       })
     })
   }
@@ -453,7 +566,11 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
   function checkCollision() {
     const head = snake[0]
 
+
     // Check collision with self (only check body segments, not the head)
+
+    // Check collision with self
+
     for (let i = 1; i < snake.length; i++) {
       if (head.x === snake[i].x && head.y === snake[i].y) {
         return true
@@ -466,6 +583,7 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
         return true
       }
     }
+
 
     // No collision with villagers - they should not cause game over
     return false
@@ -518,16 +636,25 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     setInDanger(danger)
   }
 
+
+    return false
+  }
+
+
   function checkFood() {
     const head = snake[0]
 
     if (head.x === food.x && head.y === food.y) {
+
       // Set eating animation
       setIsEating(true)
+
+
 
       // Increase score
       const newScore = score + level * 10
       setScore(newScore)
+
 
       // Play eat sound
       if (!soundMuted) {
@@ -545,6 +672,8 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
       if (settings.particleEffects) {
         createParticles(food.x + CELL_SIZE / 2, food.y + CELL_SIZE / 2)
       }
+
+
 
       // Place new food
       placeFood()
@@ -569,10 +698,13 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     setLevel(newLevel)
     setFoodEatenInLevel(0)
 
+
     // Play level up sound
     if (!soundMuted && levelUpSoundRef.current) {
       levelUpSoundRef.current.play().catch((e) => console.error("Error playing sound:", e))
     }
+
+
 
     // Show level up notification
     setShowLevelUp(true)
@@ -582,6 +714,7 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     addObstacles(newLevel)
 
     // Add villagers in higher levels
+
     if (newLevel >= 2) {
       addVillagers(newLevel)
     }
@@ -621,18 +754,46 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
         }
         if (validPosition) break
       }
+
+    if (newLevel >= 3) {
+      addVillagers(newLevel)
+    }
+  }
+
+  function placeFood() {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    let validPosition = false
+    let newFood = { x: 0, y: 0 }
+
+    while (!validPosition) {
+      newFood = {
+        x: Math.floor(Math.random() * (canvas.width / CELL_SIZE)) * CELL_SIZE,
+        y: Math.floor(Math.random() * (canvas.height / CELL_SIZE)) * CELL_SIZE,
+      }
+
+      validPosition = isValidPosition(newFood.x, newFood.y)
+
     }
 
     setFood(newFood)
   }
 
   function addObstacles(currentLevel: number) {
+
+
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+
     const newObstacles: Position[] = []
     const numObstacles = currentLevel * 2
 
     for (let i = 0; i < numObstacles; i++) {
       let validPosition = false
       let position = { x: 0, y: 0 }
+
       let attempts = 0
       const maxAttempts = 50
 
@@ -653,18 +814,40 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
       if (validPosition) {
         newObstacles.push(position)
       }
+
+
+      while (!validPosition) {
+        position = {
+          x: Math.floor(Math.random() * (canvas.width / CELL_SIZE)) * CELL_SIZE,
+          y: Math.floor(Math.random() * (canvas.height / CELL_SIZE)) * CELL_SIZE,
+        }
+
+        validPosition = isValidPosition(position.x, position.y)
+      }
+
+      newObstacles.push(position)
+
     }
 
     setObstacles(newObstacles)
   }
 
   function addVillagers(currentLevel: number) {
+
     const newVillagers: Villager[] = []
     const numVillagers = Math.min(currentLevel, 10) // Cap at 10 villagers max
+
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const newVillagers: Position[] = []
+    const numVillagers = currentLevel - 2 // Start with 1 villager at level 3
+
 
     for (let i = 0; i < numVillagers; i++) {
       let validPosition = false
       let position = { x: 0, y: 0 }
+
       let attempts = 0
       const maxAttempts = 50
 
@@ -672,6 +855,13 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
         position = {
           x: Math.floor(Math.random() * (canvasSize.width / CELL_SIZE)) * CELL_SIZE,
           y: Math.floor(Math.random() * (canvasSize.height / CELL_SIZE)) * CELL_SIZE,
+
+
+      while (!validPosition) {
+        position = {
+          x: Math.floor(Math.random() * (canvas.width / CELL_SIZE)) * CELL_SIZE,
+          y: Math.floor(Math.random() * (canvas.height / CELL_SIZE)) * CELL_SIZE,
+
         }
 
         // Make sure villagers are placed away from snake
@@ -685,16 +875,23 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
         }
 
         validPosition = !tooClose && isValidPosition(position.x, position.y)
+
         attempts++
       }
 
       if (validPosition) {
         newVillagers.push({ ...position, scared: false })
       }
+
+      }
+
+      newVillagers.push(position)
+
     }
 
     setVillagers(newVillagers)
   }
+
 
   function addProps() {
     const themeData = themes[settings.theme as keyof typeof themes]
@@ -735,6 +932,8 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     setProps(newProps)
   }
 
+
+
   function isValidPosition(x: number, y: number) {
     // Check if position is occupied by snake
     for (const segment of snake) {
@@ -764,6 +963,7 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
 
     return true
   }
+
 
   function isValidPropPosition(x: number, y: number) {
     // First check if position is valid for game elements
@@ -817,6 +1017,8 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     )
   }
 
+
+
   function drawGame() {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -828,6 +1030,7 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     // Clear canvas
     ctx.fillStyle = colors.background
     ctx.fillRect(0, 0, canvas.width, canvas.height)
+
 
     // Draw theme-specific background elements
     drawThemeBackground(ctx, settings.theme, canvas.width, canvas.height)
@@ -999,14 +1202,66 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
           ctx.beginPath()
           ctx.roundRect(snake[i].x, snake[i].y, CELL_SIZE, CELL_SIZE, radius)
           ctx.fill()
+
+    // Draw snake
+    for (let i = 0; i < snake.length; i++) {
+      ctx.fillStyle = i === 0 ? colors.snakeHead : colors.snake
+      ctx.fillRect(snake[i].x, snake[i].y, CELL_SIZE, CELL_SIZE)
+
+      // Add eyes to head
+      if (i === 0) {
+        ctx.fillStyle = "#000000"
+
+        // Position eyes based on direction
+        switch (direction) {
+          case "up":
+            ctx.fillRect(snake[i].x + 5, snake[i].y + 3, 3, 3)
+            ctx.fillRect(snake[i].x + 12, snake[i].y + 3, 3, 3)
+            break
+          case "down":
+            ctx.fillRect(snake[i].x + 5, snake[i].y + 14, 3, 3)
+            ctx.fillRect(snake[i].x + 12, snake[i].y + 14, 3, 3)
+            break
+          case "left":
+            ctx.fillRect(snake[i].x + 3, snake[i].y + 5, 3, 3)
+            ctx.fillRect(snake[i].x + 3, snake[i].y + 12, 3, 3)
+            break
+          case "right":
+            ctx.fillRect(snake[i].x + 14, snake[i].y + 5, 3, 3)
+            ctx.fillRect(snake[i].x + 14, snake[i].y + 12, 3, 3)
+            break
+
         }
       }
     }
+
 
     // Draw villagers (instead of food)
     for (const villager of villagers) {
       // Draw villager
       ctx.fillStyle = colors.villager
+
+
+    // Draw food
+    ctx.fillStyle = colors.food
+    ctx.beginPath()
+    ctx.arc(food.x + CELL_SIZE / 2, food.y + CELL_SIZE / 2, CELL_SIZE / 2, 0, Math.PI * 2)
+    ctx.fill()
+
+    // Draw obstacles
+    ctx.fillStyle = colors.obstacle
+    for (const obstacle of obstacles) {
+      ctx.beginPath()
+      ctx.moveTo(obstacle.x, obstacle.y + CELL_SIZE)
+      ctx.lineTo(obstacle.x + CELL_SIZE / 3, obstacle.y + CELL_SIZE / 3)
+      ctx.lineTo(obstacle.x + CELL_SIZE, obstacle.y + CELL_SIZE / 2)
+      ctx.lineTo(obstacle.x + CELL_SIZE * 0.8, obstacle.y + CELL_SIZE)
+      ctx.fill()
+    }
+
+    // Draw villagers
+    ctx.fillStyle = colors.villager
+    for (const villager of villagers) {
 
       // Head
       ctx.beginPath()
@@ -1022,6 +1277,7 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
       // Legs
       ctx.fillRect(villager.x + CELL_SIZE * 0.3, villager.y + CELL_SIZE * 0.7, CELL_SIZE * 0.1, CELL_SIZE * 0.3)
       ctx.fillRect(villager.x + CELL_SIZE * 0.6, villager.y + CELL_SIZE * 0.7, CELL_SIZE * 0.1, CELL_SIZE * 0.3)
+
 
       // Face - scared or normal
       ctx.fillStyle = "#000000"
@@ -1765,6 +2021,8 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
           ctx.globalAlpha = 1
         }
         break
+
+
     }
   }
 
@@ -1786,6 +2044,7 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     setIsPaused(!isPaused)
   }
 
+
   function toggleSound() {
     setSoundMuted(!soundMuted)
 
@@ -1803,18 +2062,25 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
     setTimeout(updateCanvasSize, 100)
   }
 
+
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+
       className="flex w-full flex-col items-center justify-center"
+
+      className="flex flex-col items-center justify-center"
+
     >
       <div className="mb-4 flex w-full justify-between">
         <div className="flex gap-4">
           <div className="rounded-md bg-gray-800 px-3 py-1 font-medium text-white">Score: {score}</div>
           <div className="rounded-md bg-gray-800 px-3 py-1 font-medium text-white">Level: {level}</div>
         </div>
+
         <div className="flex gap-2">
           <div className="rounded-md bg-gray-800 px-3 py-1 font-medium text-white">
             Theme: {settings.theme.charAt(0).toUpperCase() + settings.theme.slice(1)}
@@ -1864,6 +2130,29 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
           {isFullscreen ? <Minimize2 size={20} /> : <Maximize2 size={20} />}
         </button>
 
+
+        <div className="rounded-md bg-gray-800 px-3 py-1 font-medium text-white">
+          Theme: {settings.theme.charAt(0).toUpperCase() + settings.theme.slice(1)}
+        </div>
+      </div>
+
+      <div className="relative">
+        <canvas
+          ref={canvasRef}
+          width={400}
+          height={400}
+          className={`rounded-lg border-4 ${
+            settings.theme === "forest"
+              ? "border-emerald-500"
+              : settings.theme === "desert"
+                ? "border-orange-500"
+                : settings.theme === "snow"
+                  ? "border-blue-500"
+                  : "border-fuchsia-500"
+          }`}
+        />
+
+
         <AnimatePresence>
           {showLevelUp && (
             <motion.div
@@ -1872,17 +2161,25 @@ export default function GameScreen({ onMenuClick, onGameOver }: GameScreenProps)
               exit={{ opacity: 0, scale: 0.8 }}
               className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-md bg-black/80 px-6 py-3 text-xl font-bold text-emerald-400"
             >
+
               Level Up! {level}
+
+              Level Up!
+
             </motion.div>
           )}
         </AnimatePresence>
       </div>
+
 
       <div
         className={`mt-6 flex w-full flex-col items-center gap-4 ${
           isFullscreen ? "fixed bottom-4 left-0 right-0 z-50" : ""
         }`}
       >
+
+      <div className="mt-6 flex w-full flex-col items-center gap-4">
+
         <GameControls
           onDirectionChange={changeDirection}
           onPauseClick={togglePause}
