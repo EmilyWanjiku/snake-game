@@ -5,11 +5,9 @@ import { createContext, useContext, useState, type ReactNode } from "react"
 interface GameSettings {
   difficulty: string
   theme: string
-
   soundEnabled: boolean
   particleEffects: boolean
-
-
+  gameSize?: number
 }
 
 interface GameContextType {
@@ -20,11 +18,9 @@ interface GameContextType {
 const defaultSettings: GameSettings = {
   difficulty: "medium",
   theme: "forest",
-
   soundEnabled: true,
   particleEffects: true,
-
-
+  gameSize: 100,
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined)
