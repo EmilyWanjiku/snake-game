@@ -1,7 +1,10 @@
 # snake-game
 This project aims to create an interactive snake game that is fun and enjoyable
-#
- Detailed Guide to Setting Up the Legendary Snake Game Project
+# LIVE DEMO LINK
+https://vsnakegame.vercel.app/
+note left keyboard button not working but on screen works.
+
+# Detailed Guide to Setting Up the Legendary Snake Game Project
 
 I'll provide detailed instructions for both Windows and Linux users, including all the necessary commands to install dependencies.
 Prerequisites Installation
