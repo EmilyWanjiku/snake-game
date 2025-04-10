@@ -1,9 +1,11 @@
-#How to Run the Legendary Snake Game Project
+# How to Run the Legendary Snake Game Project
 
 This is a Next.js project built with React, TypeScript, and Tailwind CSS. Here's how to get it up and running on your local machine:
 Prerequisites
-
-#Make sure you have the following installed:
+# LIVE DEMO LINK
+https://vsnakegame.vercel.app/
+note left keyboard button not working but on screen works.
+# Make sure you have the following installed:
 
     Node.js
 
