@@ -1,3 +1,4 @@
+this project is soorely done by emily 
 # How to Run the Legendary Snake Game Project
 
 This is a Next.js project built with React, TypeScript, and Tailwind CSS. Here's how to get it up and running on your local machine:
