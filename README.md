@@ -66,7 +66,7 @@ The main components of the game are:
     components/about-screen.tsx - About page
     context/game-context.tsx - Game state management
 
-#Building for Production
+#Building for Productionthen npm start
 
 If you want to build the game for production:
 npm run build
@@ -81,6 +81,6 @@ yarn build
 #Then you can start the production server:
 npm start
 # or
-yarn start
+just uae npm run build 
 
 Enjoy playing your Legendary Snake Game!
