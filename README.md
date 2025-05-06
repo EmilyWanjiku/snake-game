@@ -85,3 +85,4 @@ npm start
 just uae npm run build 
 
 Enjoy playing your Legendary Snake Game!
+# TO FIX - LEFT BUTTON
