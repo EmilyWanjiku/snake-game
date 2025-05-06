@@ -80,6 +80,7 @@ yarn build
 
 #Then you can start the production server:
 npm start
+#To fix  - left button
 # or
 just uae npm run build 
 
