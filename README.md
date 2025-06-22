@@ -82,7 +82,8 @@ yarn build
 npm start
 
 # or
-just uae npm run build 
+just use npm run build 
+
+# TO FIX - LEFT BUTTON
 --also game bug..exists or ends game 
 Enjoy playing your Legendary Snake Game!
-# TO FIX - LEFT BUTTON
