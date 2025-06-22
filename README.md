@@ -83,6 +83,6 @@ npm start
 #To fix  - left button
 # or
 just uae npm run build 
-
+--also game bug..exists or ends game 
 Enjoy playing your Legendary Snake Game!
 # TO FIX - LEFT BUTTON
