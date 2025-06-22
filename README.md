@@ -5,7 +5,7 @@ This is a Next.js project built with React, TypeScript, and Tailwind CSS. Here's
 Prerequisites
 # LIVE DEMO LINK
 https://vsnakegame.vercel.app/
-note left keyboard button not working but on screen works.
+note left keyboard button not working but on screen works.a fix will come later when needed
 # Make sure you have the following installed:
 
     Node.js
