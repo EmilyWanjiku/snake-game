@@ -78,9 +78,9 @@ yarn build
 ![Screenshot 2025-04-08 at 14-15-13 v0 App](https://github.com/user-attachments/assets/c09fb033-6775-45e7-bfad-890ae7ca731a)
 
 
-#Then you can start the production server:
+# Then you can start the production server: 
 npm start
-#To fix  - left button
+
 # or
 just uae npm run build 
 --also game bug..exists or ends game 
